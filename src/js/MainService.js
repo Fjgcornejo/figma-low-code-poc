@@ -2,18 +2,19 @@ import router from "../router/index";
 
 class MainService {
 
-  constructor () {
-    this.vapers = []
+  constructor(){
+    this.token = JSON.parse(localStorage.getItem('JWT')).access_token
   }
 
   findAll (viewModel) {
+    this.vapers = viewModel.vapers
     fetch(`https://lab.onesaitplatform.com/api-manager/server/api/v1/vapers/`,
       {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'Authorization': `Bearer ${JSON.parse(localStorage.getItem('JWT')).access_token}`
+          'Authorization': `Bearer ${this.token}`
         }
       })
       .then(res => {
@@ -23,7 +24,10 @@ class MainService {
           throw res;
         }
       })
-      .then(r => viewModel.vapers = r)
+      .then(r => {
+        viewModel.vapers = r
+        this.vapers = r
+      })
 
     }
 
@@ -64,38 +68,83 @@ class MainService {
   }
 
   findByFilter (filter) {
-    console.debug('findByFilter', filter)
     if (!filter) {
       return this.vapers
     }
     filter = filter.toLowerCase()
     let result = this.vapers.filter(v => {
-      return v.name.toLowerCase().indexOf(filter) >= 0
-    })
-    console.debug('ee', result)
+      return v.name.toLowerCase().indexOf(filter) >= 0})
     return result
   }
 
-  create (name, details) {
-    this.vapers.push({
-      id: this.vapers.length,
-      name: name,
-      details: details,
-      isDone: false
+  create (vaper) {
+    vaper.id = parseInt(vaper.id)
+    console.log(JSON.stringify(vaper))
+    fetch(`https://lab.onesaitplatform.com/api-manager/server/api/v1/vapers/`,
+    {
+      method: 'POST',
+      body: JSON.stringify(vaper),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      }
+    }
+    ).then(res =>{
+      if(res.status===200 || res.status===204)
+        return res.json()
+      else
+        throw res;
     })
+    .then(router.push('Home.html'))
+    .catch(router.push('/'))
+
   }
 
-  update (id, name, details) {
-    let todo = this.vapers.find(t => t.id === id)
-    if (todo) {
-      todo.name = name
-      todo.details = details
+  update (vaper) {
+    console.log(JSON.stringify(vaper))
+    let _id = vaper._id
+    delete vaper._id
+    fetch(`https://lab.onesaitplatform.com/api-manager/server/api/v1/vapers/${_id}`,
+    {
+      method: 'PUT',
+      body: JSON.stringify(vaper),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      }
     }
+    ).then(res =>{
+      if(res.status===200 || res.status===204)
+        return res.json()
+      else
+        throw res;
+    })
+    .then(router.push('Home.html'))
+    .catch(router.push('/'))
   }
 
   delete (id) {
-    this.vapers = this.vapers.filter(t => t.id !== id)
+    fetch(`https://lab.onesaitplatform.com/api-manager/server/api/v1/vapers/${id}`,
+    {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      }
+    }
+    ).then(res =>{
+      if(res.status===200 || res.status===204)
+        return res.json()
+      else
+        throw res;
+    })
+    .then(router.push('Home.html'))
+    .catch(router.push('/'))
+  }
   }
 
-}
+
 export default new MainService

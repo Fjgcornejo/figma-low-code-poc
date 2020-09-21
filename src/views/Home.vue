@@ -1,7 +1,7 @@
 <template>
 
 <div class="home">
-    <Figma :figma="figmaConfig" v-model="viewModel" />
+    <Figma :figma="figmaConfig" v-model="viewModel" :config="config"/>
 </div>
 
 </template>
@@ -41,12 +41,9 @@ export default {
                 price: ""
               },
             },
-            components: {
-              imagecustom
-            },
             config: {
                 components: {
-                  imagecustom
+                  'imagecustom':imagecustom
                 }
             }
         }
@@ -57,26 +54,25 @@ export default {
        console.debug('Home.onHomeLoad()')
        MainService.findAll(this.viewModel)
      },
-     createNewTodo (e) {
-       console.debug('Home.createNewTodo()', e.viewModel.newTodo.name, e.viewModel.newTodo.details)
-       MainService.create(e.viewModel.newTodo.name, e.viewModel.newTodo.details)
-       e.viewModel.newTodo.name = ''
-       e.viewModel.newTodo.details = ''
+     createNewVaper (e) {
+       console.debug('Home.createNewVaper()', e.viewModel.newVaper.name)
+       MainService.create(e.viewModel.newVaper)
+       e.viewModel.newVaper={}
        return 'Home'
      },
-     updateTodo (e) {
-       console.debug('Home.updateTodo()', e.viewModel.selectedTodo.name, e.viewModel.selectedTodo.id)
-       MainService.update(e.viewModel.selectedTodo.id, e.viewModel.selectedTodo.name, e.viewModel.selectedTodo.details)
+     updateVaper (e) {
+       console.debug('Home.updateVaper()', e.viewModel.selectedVaper.name, e.viewModel.selectedVaper.id)
+       MainService.update(e.viewModel.selectedVaper)
        return 'Home'
      },
-     deleteTodo (e) {
-       console.debug('Home.deleteTodo()', e.viewModel.selectedTodo.name, e.viewModel.selectedTodo.id)
-       MainService.delete(e.viewModel.selectedTodo.id)
+     deleteVaper (e) {
+       console.debug('Home.deleteVaper()', e.viewModel.selectedVaper.name, e.viewModel.selectedVaper.id)
+       MainService.delete(e.viewModel.selectedVaper._id)
        return 'Home'
      },
-     filterTodo (e) {
-       console.debug('Home.filterTodo()', e.viewModel.searchFilter)
-       this.viewModel.todos = MainService.findByFilter(e.viewModel.searchFilter)
+     filterVaper (e) {
+       console.debug('Home.filterVaper()', e.viewModel.searchFilter)
+       this.viewModel.vapers = MainService.findByFilter(e.viewModel.searchFilter)
      },
      login (e) {
        MainService.login(e.viewModel.username, e.viewModel.password)
